@@ -75,6 +75,7 @@ var (
 	ActionCoreTransferFees     GovernanceAction = 4
 	ActionCoreRecoverChainId   GovernanceAction = 5
 	ActionSlashingParamsUpdate GovernanceAction = 6
+	ActionUpdateIBCClient      GovernanceAction = 7
 
 	// Wormchain cosmwasm/middleware governance actions
 	ActionStoreCode                      GovernanceAction = 1
@@ -134,6 +135,11 @@ type (
 		DowntimeJailDuration    uint64
 		SlashFractionDoubleSign uint64
 		SlashFractionDowntime   uint64
+	}
+
+	BodyUpdateIBCClient struct {
+		SubjectClientId    [64]byte
+		SubstituteClientId [64]byte
 	}
 
 	// BodyTokenBridgeRegisterChain is a governance message to register a chain on the token bridge
@@ -307,6 +313,22 @@ func (b BodySlashingParamsUpdate) Serialize() ([]byte, error) {
 	MustWrite(buf, binary.BigEndian, b.DowntimeJailDuration)
 	MustWrite(buf, binary.BigEndian, b.SlashFractionDoubleSign)
 	MustWrite(buf, binary.BigEndian, b.SlashFractionDowntime)
+
+	return buf.Bytes(), nil
+}
+
+func (b BodyUpdateIBCClient) Serialize() ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	// Module
+	buf.Write(CoreModule)
+	// Action
+	MustWrite(buf, binary.BigEndian, ActionUpdateIBCClient)
+	// ChainID - 0 for universal
+	MustWrite(buf, binary.BigEndian, uint16(0))
+
+	buf.Write(b.SubjectClientId[:])
+	buf.Write(b.SubstituteClientId[:])
 
 	return buf.Bytes(), nil
 }

@@ -410,6 +410,7 @@ func New(
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, app.ScopedIBCKeeper,
 	)
+	app.WormholeKeeper.SetClientKeeper(app.IBCKeeper.ClientKeeper)
 
 	app.WireICS20PreWasmKeeper(&app.WormholeKeeper)
 

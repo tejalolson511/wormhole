@@ -162,3 +162,58 @@ func TestExecuteSlashingParamsUpdate(t *testing.T) {
 	})
 	assert.NoError(t, err)
 }
+
+func createUpdateClientPayload() []byte {
+	// 2 64byte strings
+	updateClient := make([]byte, 128)
+
+	subjectClientId := "07-tendermint-0"
+	substituteClientId := "07-tendermint-1"
+
+	subjectBz := [64]byte{}
+	copy(subjectBz[:], subjectClientId)
+
+	substituteBz := [64]byte{}
+	copy(substituteBz[:], substituteClientId)
+
+	copy(updateClient, subjectBz[:])
+	copy(updateClient[64:], substituteBz[:])
+
+	// governance message with sha3 of wasmBytes as the payload
+	module := [32]byte{}
+	copy(module[:], vaa.CoreModule)
+	gov_msg := types.NewGovernanceMessage(module, byte(vaa.ActionUpdateIBCClient), uint16(vaa.ChainIDWormchain), updateClient)
+
+	return gov_msg.MarshalBinary()
+}
+
+func TestExecuteUpdateClientVAA(t *testing.T) {
+	k, ctx := keepertest.WormholeKeeper(t)
+	guardians, privateKeys := createNGuardianValidator(k, ctx, 10)
+	_ = privateKeys
+	k.SetConfig(ctx, types.Config{
+		GovernanceEmitter:     vaa.GovernanceEmitter[:],
+		GovernanceChain:       uint32(vaa.GovernanceChain),
+		ChainId:               uint32(vaa.ChainIDWormchain),
+		GuardianSetExpiration: 86400,
+	})
+	signer_bz := [20]byte{}
+	signer := sdk.AccAddress(signer_bz[:])
+
+	set := createNewGuardianSet(k, ctx, guardians)
+	k.SetConsensusGuardianSetIndex(ctx, types.ConsensusGuardianSetIndex{Index: set.Index})
+
+	context := sdk.WrapSDKContext(ctx)
+	msgServer := keeper.NewMsgServerImpl(*k)
+
+	// create governance to update ibc client
+	payload := createUpdateClientPayload()
+	v := generateVaa(set.Index, privateKeys, vaa.ChainID(vaa.GovernanceChain), payload)
+	vBz, _ := v.Marshal()
+	_, err := msgServer.ExecuteGovernanceVAA(context, &types.MsgExecuteGovernanceVAA{
+		Signer: signer.String(),
+		Vaa:    vBz,
+	})
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "light client not found")
+}

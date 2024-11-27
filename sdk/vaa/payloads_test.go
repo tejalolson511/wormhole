@@ -95,6 +95,27 @@ func TestBodySlashingParamsUpdateSerialize(t *testing.T) {
 	assert.Equal(t, expected, hex.EncodeToString(serializedBody))
 }
 
+func TestBodyUpdateIBCClientSerialize(t *testing.T) {
+	subjectClientId := "07-tendermint-0"
+	substituteClientId := "07-tendermint-1"
+
+	subjectBz := [64]byte{}
+	copy(subjectBz[:], subjectClientId)
+
+	substituteBz := [64]byte{}
+	copy(substituteBz[:], substituteClientId)
+
+	bodyUpdateIBCClient := BodyUpdateIBCClient{
+		SubjectClientId:    subjectBz,
+		SubstituteClientId: substituteBz,
+	}
+	serializedBody, err := bodyUpdateIBCClient.Serialize()
+	require.NoError(t, err)
+
+	expected := "00000000000000000000000000000000000000000000000000000000436f726507000030372d74656e6465726d696e742d300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030372d74656e6465726d696e742d3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+	assert.Equal(t, expected, hex.EncodeToString(serializedBody))
+}
+
 func TestBodyTokenBridgeRegisterChainSerialize(t *testing.T) {
 	module := "test"
 	tests := []struct {

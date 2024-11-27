@@ -3,10 +3,12 @@ package keeper
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
 	"github.com/wormhole-foundation/wormchain/x/wormhole/types"
 	"github.com/wormhole-foundation/wormhole/sdk/vaa"
 )
@@ -88,6 +90,25 @@ func (k msgServer) ExecuteGovernanceVAA(goCtx context.Context, msg *types.MsgExe
 		// if the params do not pass validation checks. Because of that, we need to
 		// return the error from this function.
 		k.slashingKeeper.SetParams(ctx, params)
+	case vaa.ActionUpdateIBCClient:
+		if len(payload) != 128 {
+			return nil, types.ErrInvalidGovernancePayloadLength
+		}
+
+		subjectClientId := string(payload[0:64])
+		substituteClientId := string(payload[64:128])
+
+		msg := clienttypes.ClientUpdateProposal{
+			Title:              "Update IBC Client",
+			Description:        fmt.Sprintf("Updates Client %s with %s", subjectClientId, substituteClientId),
+			SubjectClientId:    subjectClientId,
+			SubstituteClientId: substituteClientId,
+		}
+
+		err := k.clientKeeper.ClientUpdateProposal(ctx, &msg)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, types.ErrUnknownGovernanceAction
 
