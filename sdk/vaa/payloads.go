@@ -75,7 +75,7 @@ var (
 	ActionCoreTransferFees     GovernanceAction = 4
 	ActionCoreRecoverChainId   GovernanceAction = 5
 	ActionSlashingParamsUpdate GovernanceAction = 6
-	ActionUpdateIBCClient      GovernanceAction = 7
+	ActionIBCClientUpdate      GovernanceAction = 7
 
 	// Wormchain cosmwasm/middleware governance actions
 	ActionStoreCode                      GovernanceAction = 1
@@ -137,7 +137,7 @@ type (
 		SlashFractionDowntime   uint64
 	}
 
-	BodyUpdateIBCClient struct {
+	BodyIBCClientUpdate struct {
 		SubjectClientId    [64]byte
 		SubstituteClientId [64]byte
 	}
@@ -317,13 +317,13 @@ func (b BodySlashingParamsUpdate) Serialize() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (b BodyUpdateIBCClient) Serialize() ([]byte, error) {
+func (b BodyIBCClientUpdate) Serialize() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	// Module
 	buf.Write(CoreModule)
 	// Action
-	MustWrite(buf, binary.BigEndian, ActionUpdateIBCClient)
+	MustWrite(buf, binary.BigEndian, ActionIBCClientUpdate)
 	// ChainID - 0 for universal
 	MustWrite(buf, binary.BigEndian, uint16(0))
 

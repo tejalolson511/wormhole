@@ -105,7 +105,7 @@ func TestBodyUpdateIBCClientSerialize(t *testing.T) {
 	substituteBz := [64]byte{}
 	copy(substituteBz[:], substituteClientId)
 
-	bodyUpdateIBCClient := BodyUpdateIBCClient{
+	bodyUpdateIBCClient := BodyIBCClientUpdate{
 		SubjectClientId:    subjectBz,
 		SubstituteClientId: substituteBz,
 	}

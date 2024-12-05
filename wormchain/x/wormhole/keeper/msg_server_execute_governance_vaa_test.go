@@ -182,7 +182,7 @@ func createUpdateClientPayload() []byte {
 	// governance message with sha3 of wasmBytes as the payload
 	module := [32]byte{}
 	copy(module[:], vaa.CoreModule)
-	gov_msg := types.NewGovernanceMessage(module, byte(vaa.ActionUpdateIBCClient), uint16(vaa.ChainIDWormchain), updateClient)
+	gov_msg := types.NewGovernanceMessage(module, byte(vaa.ActionIBCClientUpdate), uint16(vaa.ChainIDWormchain), updateClient)
 
 	return gov_msg.MarshalBinary()
 }

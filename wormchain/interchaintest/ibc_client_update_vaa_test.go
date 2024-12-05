@@ -41,7 +41,7 @@ func createIbcClientUpdateVaa(
 	copy(payload[:64], []byte(subjectClientId))
 	copy(payload[64:], []byte(substitueClientId))
 
-	gov_msg := types.NewGovernanceMessage(coreModule, byte(vaa.ActionUpdateIBCClient), uint16(vaa.ChainIDWormchain),
+	gov_msg := types.NewGovernanceMessage(coreModule, byte(vaa.ActionIBCClientUpdate), uint16(vaa.ChainIDWormchain),
 		payload)
 
 	return gov_msg.MarshalBinary(), nil

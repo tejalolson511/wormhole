@@ -91,7 +91,7 @@ func (k msgServer) ExecuteGovernanceVAA(goCtx context.Context, msg *types.MsgExe
 		// if the params do not pass validation checks. Because of that, we need to
 		// return the error from this function.
 		k.slashingKeeper.SetParams(ctx, params)
-	case vaa.ActionUpdateIBCClient:
+	case vaa.ActionIBCClientUpdate:
 		if len(payload) != 128 {
 			return nil, types.ErrInvalidGovernancePayloadLength
 		}
