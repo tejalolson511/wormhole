@@ -99,11 +99,15 @@ func TestBodyUpdateIBCClientSerialize(t *testing.T) {
 	subjectClientId := "07-tendermint-0"
 	substituteClientId := "07-tendermint-1"
 
-	subjectBz := [64]byte{}
-	copy(subjectBz[:], subjectClientId)
+	subject, err := LeftPadBytes(subjectClientId, 64)
+	require.NoError(t, err)
+	var subjectBz [64]byte
+	copy(subjectBz[:], subject.Bytes())
 
-	substituteBz := [64]byte{}
-	copy(substituteBz[:], substituteClientId)
+	substitute, err := LeftPadBytes(substituteClientId, 64)
+	require.NoError(t, err)
+	var substituteBz [64]byte
+	copy(substituteBz[:], substitute.Bytes())
 
 	bodyUpdateIBCClient := BodyIBCClientUpdate{
 		SubjectClientId:    subjectBz,
@@ -112,7 +116,7 @@ func TestBodyUpdateIBCClientSerialize(t *testing.T) {
 	serializedBody, err := bodyUpdateIBCClient.Serialize()
 	require.NoError(t, err)
 
-	expected := "00000000000000000000000000000000000000000000000000000000436f726507000030372d74656e6465726d696e742d300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030372d74656e6465726d696e742d3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+	expected := "00000000000000000000000000000000000000000000000000000000436f72650700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030372d74656e6465726d696e742d300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030372d74656e6465726d696e742d31"
 	assert.Equal(t, expected, hex.EncodeToString(serializedBody))
 }
 

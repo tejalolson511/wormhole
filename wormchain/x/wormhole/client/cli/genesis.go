@@ -553,9 +553,26 @@ func CmdGenerateIBCClientUpdateVaa() *cobra.Command {
 				return fmt.Errorf("subject-client-id and substitute-client-id must be provided via flags")
 			}
 
+			// left pad subject bytes
+			subject, err := vaa.LeftPadBytes(subjectClientId, 64)
+			if err != nil {
+				return err
+			}
+			var subjectBz [64]byte
+			copy(subjectBz[:], subject.Bytes())
+
+			// left pad substitute bytes
+			substitute, err := vaa.LeftPadBytes(substituteClientId, 64)
+			if err != nil {
+				return err
+			}
+			var substituteBz [64]byte
+			copy(substituteBz[:], substitute.Bytes())
+
+			// create client payload (2 64 byte strings)
 			clientUpdate := make([]byte, 128)
-			copy(clientUpdate[:64], []byte(subjectClientId))
-			copy(clientUpdate[64:], []byte(substituteClientId))
+			copy(clientUpdate[:64], subjectBz[:])
+			copy(clientUpdate[64:], substituteBz[:])
 
 			action := vaa.ActionIBCClientUpdate
 			chain := 3104

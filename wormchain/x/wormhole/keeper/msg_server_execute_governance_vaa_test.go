@@ -163,19 +163,27 @@ func TestExecuteSlashingParamsUpdate(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func createUpdateClientPayload() []byte {
-	// 2 64byte strings
-	updateClient := make([]byte, 128)
+func createUpdateClientPayload() ([]byte, error) {
 
 	subjectClientId := "07-tendermint-0"
 	substituteClientId := "07-tendermint-1"
 
-	subjectBz := [64]byte{}
-	copy(subjectBz[:], subjectClientId)
+	subject, err := vaa.LeftPadBytes(subjectClientId, 64)
+	if err != nil {
+		return nil, err
+	}
+	var subjectBz [64]byte
+	copy(subjectBz[:], subject.Bytes())
 
-	substituteBz := [64]byte{}
-	copy(substituteBz[:], substituteClientId)
+	substitute, err := vaa.LeftPadBytes(substituteClientId, 64)
+	if err != nil {
+		return nil, err
+	}
+	var substituteBz [64]byte
+	copy(substituteBz[:], substitute.Bytes())
 
+	// 2 64byte strings
+	updateClient := make([]byte, 128)
 	copy(updateClient, subjectBz[:])
 	copy(updateClient[64:], substituteBz[:])
 
@@ -184,7 +192,7 @@ func createUpdateClientPayload() []byte {
 	copy(module[:], vaa.CoreModule)
 	gov_msg := types.NewGovernanceMessage(module, byte(vaa.ActionIBCClientUpdate), uint16(vaa.ChainIDWormchain), updateClient)
 
-	return gov_msg.MarshalBinary()
+	return gov_msg.MarshalBinary(), nil
 }
 
 func TestExecuteUpdateClientVAA(t *testing.T) {
@@ -207,10 +215,12 @@ func TestExecuteUpdateClientVAA(t *testing.T) {
 	msgServer := keeper.NewMsgServerImpl(*k)
 
 	// create governance to update ibc client
-	payload := createUpdateClientPayload()
+	payload, err := createUpdateClientPayload()
+	assert.NoError(t, err)
+
 	v := generateVaa(set.Index, privateKeys, vaa.ChainID(vaa.GovernanceChain), payload)
 	vBz, _ := v.Marshal()
-	_, err := msgServer.ExecuteGovernanceVAA(context, &types.MsgExecuteGovernanceVAA{
+	_, err = msgServer.ExecuteGovernanceVAA(context, &types.MsgExecuteGovernanceVAA{
 		Signer: signer.String(),
 		Vaa:    vBz,
 	})

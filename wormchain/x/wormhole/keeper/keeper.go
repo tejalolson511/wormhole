@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v7/modules/core/02-client/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v4/modules/core/02-client/keeper"
 	"github.com/wormhole-foundation/wormchain/x/wormhole/types"
 )
 

@@ -96,8 +96,8 @@ func (k msgServer) ExecuteGovernanceVAA(goCtx context.Context, msg *types.MsgExe
 			return nil, types.ErrInvalidGovernancePayloadLength
 		}
 
-		subjectClientId := string(bytes.TrimRight(payload[0:64], "\x00"))
-		substituteClientId := string(bytes.TrimRight(payload[64:128], "\x00"))
+		subjectClientId := string(bytes.TrimLeft(payload[0:64], "\x00"))
+		substituteClientId := string(bytes.TrimLeft(payload[64:128], "\x00"))
 
 		msg := clienttypes.ClientUpdateProposal{
 			Title:              "Update IBC Client",
