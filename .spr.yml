@@ -5,3 +5,45 @@ requireChecks: true
 requireApproval: true
 githubRemote: origin
 githubBranch: main
+
+# Дополнительные настройки
+notification:
+  success: true  # Уведомления при успешной проверке
+  failure: true  # Уведомления при неудачной проверке
+
+# Конфигурация для проверки состояния пулл-реквестов
+pull_request:
+  requireReview: true   # Необходимость ревью для слияния
+  requireChecks: true   # Требуется успешное выполнение проверок
+
+# Настройки для разных веток (например, для CI)
+environments:
+  - name: development
+    branch: develop
+    actions:
+      - check: true  # Проверки для ветки разработки
+      - build: true  # Построение для ветки разработки
+  - name: production
+    branch: main
+    actions:
+      - check: true  # Проверки для ветки продакшн
+      - deploy: true # Развертывание для ветки продакшн
+
+# Уведомления для CI/CD процесса
+notifications:
+  success:
+    - slack: 'https://slack.com/webhook...'
+    - email: 'team@example.com'
+  failure:
+    - slack: 'https://slack.com/webhook...'
+    - email: 'team@example.com'
+  
+# Пример webhook для CI/CD процессов
+ci_notifications:
+  success: 
+    - slack: 'https://slack.com/webhook-success'
+    - email: 'team@success.com'
+  failure:
+    - slack: 'https://slack.com/webhook-failure'
+    - email: 'team@failure.com'
+
